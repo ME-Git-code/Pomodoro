@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomodoro — Pro Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg">
+  <div class="bg-grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="particles" id="particles"></div>
+</div>
+
+<div class="page">
+  <div class="card">
+
+    <div class="top-bar">
+      <div class="logo">Pomodoro</div>
+      <div class="session-pill" id="sessionPill">Sessiya 1 / 4</div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" onclick="setMode('focus')">Fokus</button>
+      <button class="tab" onclick="setMode('short')">Qisqa</button>
+      <button class="tab" onclick="setMode('long')">Uzun</button>
+    </div>
+
+    <div class="task-box">
+      <label class="field-lbl" for="taskInput">Vazifa</label>
+      <input class="task-input" id="taskInput" type="text" maxlength="42" placeholder="Bugungi fokus mavzusi">
+    </div>
+
+    <div class="clock-wrap" id="clockWrap">
+      <div class="clock-inner">
+        <div class="pulse-ring" id="pulseRing"></div>
+        <svg class="ring-svg" width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
+          <circle cx="110" cy="110" r="100" fill="none" stroke="rgba(255,245,220,0.05)" stroke-width="1.5"/>
+          <circle id="ring" cx="110" cy="110" r="100" fill="none"
+            stroke="#d4a853" stroke-width="2"
+            stroke-dasharray="628.3" stroke-dashoffset="0"
+            stroke-linecap="round"
+            transform="rotate(-90 110 110)"
+            style="transition: stroke-dashoffset 1s linear, stroke 0.4s;"/>
+          <!-- tick marks -->
+          <g id="tickMarks"></g>
+        </svg>
+        <div class="time-disp" id="timeDsp">25:00</div>
+        <div class="mode-lbl" id="modeLbl">FOKUS VAQTI</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-icon" onclick="skipBack()" title="Qaytarish" aria-label="Qaytarish">
+        <i class="ti ti-player-skip-back" aria-hidden="true"></i>
+      </button>
+      <button class="btn-play" id="playBtn" onclick="toggleTimer()" aria-label="Boshlash / To'xtatish">
+        <i class="ti ti-player-play" id="playIco" aria-hidden="true"></i>
+      </button>
+      <button class="btn-icon" onclick="skipNext()" title="O'tkazish" aria-label="O'tkazish">
+        <i class="ti ti-player-skip-forward" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-v" id="stCompleted">0</div><div class="stat-l">Bajarildi</div></div>
+      <div class="stat"><div class="stat-v" id="stMinutes">0</div><div class="stat-l">Daqiqa</div></div>
+      <div class="stat"><div class="stat-v" id="stStreak">0</div><div class="stat-l">Ketma-ket</div></div>
+    </div>
+
+    <div class="goal-card">
+      <div class="goal-top">
+        <div>
+          <div class="setting-lbl">Kunlik maqsad</div>
+          <div class="goal-text"><span id="goalDone">0</span> / <span id="goalTarget">8</span> sessiya</div>
+        </div>
+        <div class="adj">
+          <button class="adj-btn" onclick="adjGoal(-1)" aria-label="Maqsadni kamaytirish"><i class="ti ti-minus" style="font-size:11px"></i></button>
+          <button class="adj-btn" onclick="adjGoal(1)" aria-label="Maqsadni oshirish"><i class="ti ti-plus" style="font-size:11px"></i></button>
+        </div>
+      </div>
+      <div class="goal-bar" aria-hidden="true"><div class="goal-fill" id="goalFill"></div></div>
+    </div>
+
+    <div class="div"></div>
+
+    <div class="setting-row">
+      <div class="setting-lbl">Fokus (min)</div>
+      <div class="adj">
+        <button class="adj-btn" onclick="adj('focus',-5)"><i class="ti ti-minus" style="font-size:11px"></i></button>
+        <div class="adj-v" id="vFocus">25</div>
+        <button class="adj-btn" onclick="adj('focus',5)"><i class="ti ti-plus" style="font-size:11px"></i></button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-lbl">Qisqa tanaffus (min)</div>
+      <div class="adj">
+        <button class="adj-btn" onclick="adj('short',-1)"><i class="ti ti-minus" style="font-size:11px"></i></button>
+        <div class="adj-v" id="vShort">5</div>
+        <button class="adj-btn" onclick="adj('short',1)"><i class="ti ti-plus" style="font-size:11px"></i></button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-lbl">Uzun tanaffus (min)</div>
+      <div class="adj">
+        <button class="adj-btn" onclick="adj('long',-5)"><i class="ti ti-minus" style="font-size:11px"></i></button>
+        <div class="adj-v" id="vLong">15</div>
+        <button class="adj-btn" onclick="adj('long',5)"><i class="ti ti-plus" style="font-size:11px"></i></button>
+      </div>
+    </div>
+
+    <div class="div"></div>
+
+    <div class="history">
+      <div class="history-head">
+        <div class="setting-lbl">Bugungi tarix</div>
+        <button class="clear-btn" onclick="clearToday()">Tozalash</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <div class="bottom">
+      <button class="sound-btn" onclick="toggleSound()" id="soundBtn">
+        <i class="ti ti-volume" id="soundIco" aria-hidden="true"></i>
+        <span id="soundTxt">Ovoz yoqilgan</span>
+      </button>
+      <div class="today-lbl">Bugun: <span id="todaySpan">0</span> sessiya</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
